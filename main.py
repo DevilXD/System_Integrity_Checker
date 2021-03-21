@@ -39,7 +39,9 @@ try:
 
     # Define all possible menu options
 
-    def check_other_drives():
+    errors_restart = Tuple[bool, bool]
+
+    def check_other_drives() -> errors_restart:
         errors_fixed = False
         restart_required = False
         # Run 'chkdsk' on each drive that isn't the 'system_drive'
@@ -57,14 +59,14 @@ try:
                 restart_required = True
         return (errors_fixed, restart_required)
 
-    def disk_standard():
+    def disk_standard() -> errors_restart:
         # Check all other drives first
         errors_fixed, _ = check_other_drives()
         # quietly schedule a system drive check on the next restart
         schedule_check(system_drive)
         return (errors_fixed, True)
 
-    def disk_lazy():
+    def disk_lazy() -> errors_restart:
         # Check all other drives first
         errors_fixed, restart_required = check_other_drives()
         # Run 'chkdsk' on the 'system_drive' in read-only mode.
@@ -78,7 +80,7 @@ try:
         return (errors_fixed, restart_required)
 
     # Safe option - schedule a check on all drives on the next restart
-    def disk_offline():
+    def disk_offline() -> errors_restart:
         for drive_letter in logical_drives:
             print(f"Scheduling {drive_letter} check...")
             schedule_check(drive_letter)
@@ -97,8 +99,10 @@ try:
         sys.exit(0)
 
     # Menu
+    errors_fixed: bool
+    restart_required: bool
     if pause:
-        errors_fixed, restart_required = menu(
+        errors_fixed, restart_required = menu(  # type: ignore
             "System Integrity Verificator (by DevilXD)\n"
             "\n"
             f"Detected logical drives: {', '.join(logical_drives)}\n"
