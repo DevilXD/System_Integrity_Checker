@@ -3,10 +3,11 @@ import sys
 # import argparse  # TODO: Add an arg interface to this
 import traceback
 from time import sleep
+from typing import List
 
 from utils import ask_restart
 from menu import MenuOption, menu
-from drive import get_system_drive, get_logical_drives, run_chkdsk, schedule_check, run_sfc
+from drive import Drive, get_system_drive, get_logical_drives, run_chkdsk, schedule_check, run_sfc
 
 # Platform-dependent imports
 try:
@@ -33,8 +34,8 @@ try:
 
     # Nice console title
     ctypes.windll.kernel32.SetConsoleTitleW("System Integrity Verificator (by DevilXD)")
-    system_drive = get_system_drive()
-    logical_drives = get_logical_drives()
+    system_drive: Drive = get_system_drive()
+    logical_drives: List[Drive] = get_logical_drives()
 
     # Define all possible menu options
 
