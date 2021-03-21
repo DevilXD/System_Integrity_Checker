@@ -1,9 +1,16 @@
-from typing import Any, List, Dict, Callable, NamedTuple
+import shutil
+import textwrap
+from typing import List, Dict, Callable, NamedTuple, TypeVar
 
 from utils import get_key
 
+MenuReturn = TypeVar("MenuReturn")
+NoneFunction = Callable[[], MenuReturn]
 
-NoneFunction = Callable[[], Any]
+width, height = shutil.get_terminal_size()
+text_wrapper = textwrap.TextWrapper(
+    width=width, tabsize=4, replace_whitespace=False, break_on_hyphens=False
+)
 
 
 class MenuOption(NamedTuple):
@@ -11,7 +18,7 @@ class MenuOption(NamedTuple):
     function: NoneFunction
 
 
-def menu(menu_text: str, options: List[MenuOption]):
+def menu(menu_text: str, options: List[MenuOption]) -> MenuReturn:
     options_list: List[str] = []
     options_dict: Dict[str, NoneFunction] = {}
     for i, option in enumerate(options, start=1):
@@ -19,15 +26,12 @@ def menu(menu_text: str, options: List[MenuOption]):
         options_dict[str(i)] = option.function
     options_text = '\n'.join(options_list)
     print(
-        f"{menu_text}\n",
+        f"{text_wrapper.fill(menu_text)}\n",
         "\n"
         "Options available:\n"
         "\n"
-        f"{options_text}\n"
-        "\n"
-        "Please choose an option: ",
-        end='',
+        f"{text_wrapper.fill(options_text)}"
     )
-    key = get_key(lambda k: k in options_dict and k or None)
+    key = get_key("Please choose an option: ", lambda k: k in options_dict and k or None)
     print(f"{key}\n")
     return options_dict[key]()  # call the chosen option

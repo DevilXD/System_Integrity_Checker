@@ -23,19 +23,58 @@ def clear_console():
     subprocess.run("cls")
 
 
-def get_key(check: Callable[[str], Optional[_RV]], *, print_keys: bool = False) -> _RV:
+def get_key(
+    prompt: str,
+    check: Callable[[str], Optional[_RV]],
+    *,
+    confirmation: bool = True,
+    print_key: bool = True,
+) -> _RV:
+    """
+    Request a key to be pressed by the user. Usually used to choose an option.
+
+    Parameters
+    ----------
+    prompt : str
+        The prompt displayed for this request.
+    check : Callable[[str], Optional[_RV]]
+        A callable that should aceept the pressed key, and return a value of choosing.
+        That value will then be used as the return value of the get_key function.
+        If the key was incorrect, returning None will ask for user input again.
+    confirmation : bool, optional
+        Controls if pressing Enter is required to proceed with the picked option.\n
+        Defaults to `True`.\n
+        Setting this to `False` will proceed with the check, right after pressing
+        the selected key, without needing to press Enter.
+    print_key : bool, optional
+        Controls if the key itself should be printed after pressing it.
+        Applies only if `confirmation` is set to `False` - with confirmation enabled,
+        the pressed keys are always displayed, and this option is ignored.
+
+    Returns
+    -------
+    _RV
+        Whatever was returned from the check function, for the key given.
+    """
     while True:
-        key: str = msvcrt.getch().decode()  # type: ignore
-        if print_keys:
-            print(key, end='')
+        key: str
+        if confirmation:
+            key = input(prompt)
+        else:
+            print(prompt, end='')
+            key = msvcrt.getch().decode()  # type: ignore
+            if print_key:
+                print(key, end='')
         result: Optional[_RV] = check(key)
         if result is not None:
             return result
 
 
 def ask_restart():
-    print("A restart is required. Do you want to restart now? (Y/N) ")
-    option = get_key(lambda c: c in ("Y", "y", "N", "n") and c or None)
+    option = get_key(
+        "A restart is required. Do you want to restart now? (Y/N) ",
+        lambda c: c in ("Y", "y", "N", "n") and c or None
+    )
     if option.lower() == "y":
         print("Restarting...")
         subprocess.run("shutdown /r /t 0", capture_output=True)
