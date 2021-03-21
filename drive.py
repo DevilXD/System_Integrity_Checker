@@ -33,8 +33,15 @@ def get_system_drive() -> Drive:
     return cast(Drive, os.getenv("systemdrive", "C:"))  # Example output: 'C:'
 
 
-def schedule_check(drive: Drive):
-    subprocess.run(f"fsutil dirty set {drive}", capture_output=True)
+def schedule_check(drive: Drive, *, force: bool = False):
+    # Setting the dirty bit has proven to cause troubles for some users,
+    # the check being done on every restart, regardless of it being successful or not.
+    # This is why I'm switching it to a less invasive method, while still leaving the original
+    # option available for external usage.
+    if force:
+        subprocess.run(f"fsutil dirty set {drive}", capture_output=True)
+    else:
+        subprocess.run(f"chkntfs /C {drive}", capture_output=True)
 
 
 # Declare a special wrapper function for chkdsk, that can automatically answer with No
