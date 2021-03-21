@@ -1,9 +1,10 @@
 import os
 import sys
+import shutil
 # import argparse  # TODO: Add an arg interface to this
 import traceback
 from time import sleep
-from typing import List
+from typing import List, Tuple
 
 from utils import ask_restart
 from menu import MenuOption, menu
@@ -102,11 +103,21 @@ try:
     errors_fixed: bool
     restart_required: bool
     if pause:
+        width, height = shutil.get_terminal_size()
+        warning_text = " WARNING ".center(width - 2, "#")
         errors_fixed, restart_required = menu(  # type: ignore
-            "System Integrity Verificator (by DevilXD)\n"
-            "\n"
-            f"Detected logical drives: {', '.join(logical_drives)}\n"
-            f"System drive: {system_drive}",
+            (
+                "System Integrity Verificator (by DevilXD)\n"
+                "\n"
+                f"Detected logical drives: {', '.join(logical_drives)}\n"
+                f"System drive: {system_drive}\n"
+                "\n"
+                f" {warning_text}\n"
+                "Locking the drive will temporarly disable access to it, "
+                "which may cause some opened programs to stop functioning. "
+                "To avoid problems, it's recommended to close any opened programs first.\n"
+                f" {warning_text}"
+            ),
             [
                 MenuOption(
                     "Standard - Lock and check each drive, restart for the system drive check",
@@ -121,7 +132,7 @@ try:
                     disk_offline,
                 ),
                 MenuOption(
-                    "Sfc check - verify system files integrity (only after disk checking)",
+                    "Sfc check - verify system files integrity (use after disk checking)",
                     sfc_check,
                 ),
                 MenuOption("Exit", exit),
