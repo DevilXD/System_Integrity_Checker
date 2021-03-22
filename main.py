@@ -18,7 +18,7 @@ except (ModuleNotFoundError, ImportError):
 
 
 # Increment by 1 for every new release
-__version__ = 3
+__version__ = 4
 
 
 # Determine if we need to pause after messages or not
