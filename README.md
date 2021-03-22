@@ -1,4 +1,4 @@
-# System_Integrity_Checker
+# System Integrity Checker
 A simple console application, that ensures the integrity of the system files on disk. For Windows only.
 
 ### Standard usage instructional:
