@@ -17,6 +17,10 @@ except (ModuleNotFoundError, ImportError):
     pass
 
 
+# Increment by 1 for every new release
+__version__ = 3
+
+
 # Determine if we need to pause after messages or not
 # Useful only for command-line usage
 pause = not bool(len(sys.argv) > 1 and sys.argv[1].lower() == "--no-prompt")
@@ -34,7 +38,9 @@ try:
         sys.exit(3)  # unsufficient privileges
 
     # Nice console title
-    ctypes.windll.kernel32.SetConsoleTitleW("System Integrity Verificator (by DevilXD)")
+    ctypes.windll.kernel32.SetConsoleTitleW(
+        f"System Integrity Verificator (by DevilXD) v{__version__}"
+    )
     system_drive: Drive = get_system_drive()
     logical_drives: List[Drive] = get_logical_drives()
 
@@ -107,7 +113,7 @@ try:
         warning_text = " WARNING ".center(width - 2, "#")
         errors_fixed, restart_required = menu(  # type: ignore
             (
-                "System Integrity Verificator (by DevilXD)\n"
+                f"System Integrity Verificator (by DevilXD) v{__version__}\n"
                 "\n"
                 f"Detected logical drives: {', '.join(logical_drives)}\n"
                 f"System drive: {system_drive}\n"
