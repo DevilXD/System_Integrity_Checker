@@ -42,5 +42,4 @@ def menu(menu_text: str, options: List[MenuOption]) -> MenuReturn:
         f"{clean_lines(options_text)}"
     )
     key: str = get_key("Please choose an option: ", lambda k: k in options_dict and k or None)
-    print(f"{key}\n")
     return options_dict[key]()  # call the chosen option
