@@ -6,8 +6,8 @@ import traceback
 from time import sleep
 from typing import List, Tuple
 
+from menu import menu
 from utils import ask_restart
-from menu import MenuOption, menu
 from drive import Drive, get_system_drive, get_logical_drives, run_chkdsk, schedule_check, run_sfc
 
 # Platform-dependent imports
@@ -18,7 +18,7 @@ except (ModuleNotFoundError, ImportError):
 
 
 # Increment by 1 for every new release
-__version__ = 4
+__version__ = 5
 
 
 # Determine if we need to pause after messages or not
@@ -111,7 +111,7 @@ try:
     if pause:
         width, height = shutil.get_terminal_size()
         warning_text = " WARNING ".center(width - 2, "#")
-        errors_fixed, restart_required = menu(  # type: ignore
+        errors_fixed, restart_required = menu(
             (
                 f"System Integrity Verificator (by DevilXD) v{__version__}\n"
                 "\n"
@@ -125,23 +125,23 @@ try:
                 f" {warning_text}"
             ),
             [
-                MenuOption(
+                (
                     "Standard - Lock and check each drive, restart for the system drive check",
                     disk_standard,
                 ),
-                MenuOption(
+                (
                     "Lazy - Lock and check each drive, avoid restarts if possible",
                     disk_lazy,
                 ),
-                MenuOption(
+                (
                     "Offline - Schedule all disks to be checked on the next restart",
                     disk_offline,
                 ),
-                MenuOption(
+                (
                     "Sfc check - verify system files integrity (use after disk checking)",
                     sfc_check,
                 ),
-                MenuOption("Exit", exit),
+                ("Exit", exit),
             ],
         )
     else:

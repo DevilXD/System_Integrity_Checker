@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import shutil
-from typing import List, Dict, Callable, NamedTuple, TypeVar
+from typing import List, Dict, Tuple, Callable, TypeVar
 
 from utils import get_key
 
@@ -22,17 +24,15 @@ def clean_lines(text: str) -> str:
     return '\n'.join(final_lines)
 
 
-class MenuOption(NamedTuple):
-    description: str
-    function: MenuFunction
+MenuOption = Tuple[str, MenuFunction[MenuReturn]]
 
 
-def menu(menu_text: str, options: List[MenuOption]) -> MenuReturn:
+def menu(menu_text: str, options: List[MenuOption[MenuReturn]]) -> MenuReturn:
     options_list: List[str] = []
-    options_dict: Dict[str, MenuFunction] = {}
+    options_dict: Dict[str, MenuFunction[MenuReturn]] = {}
     for i, option in enumerate(options, start=1):
-        options_list.append(f"{i}) {option.description}")
-        options_dict[str(i)] = option.function
+        options_list.append(f"{i}) {option[0]}")
+        options_dict[str(i)] = option[1]
     options_text = '\n'.join(options_list)
     print(
         f"{clean_lines(menu_text)}\n",

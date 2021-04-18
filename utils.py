@@ -8,10 +8,13 @@ from typing import Optional, Callable, TypeVar, cast
 try:
     import msvcrt
 except (ModuleNotFoundError, ImportError):
+    # This can happen on non-Windows systems, in which case the check in main.py will exit
+    # the program early, before msvcrt gets to be used, which should prevent an error about it
+    # being undefined from popping up.
     pass
 
 
-_RV = TypeVar("_RV", str, int)
+_RV = TypeVar("_RV")
 
 
 def get_console_encoding() -> str:
@@ -40,13 +43,13 @@ def get_key(
     check : Callable[[str], Optional[_RV]]
         A callable that should aceept the pressed key, and return a value of choosing.
         That value will then be used as the return value of the get_key function.
-        If the key was incorrect, returning None will ask for user input again.
-    confirmation : bool, optional
+        If the key was incorrect, returning `None` will ask for user input again.
+    confirmation : bool
         Controls if pressing Enter is required to proceed with the picked option.\n
         Defaults to `True`.\n
         Setting this to `False` will proceed with the check, right after pressing
         the selected key, without needing to press Enter.
-    print_key : bool, optional
+    print_key : bool
         Controls if the key itself should be printed after pressing it.
         Applies only if `confirmation` is set to `False` - with confirmation enabled,
         the pressed keys are always displayed, and this option is ignored.
@@ -62,7 +65,7 @@ def get_key(
             key = input(prompt)
         else:
             print(prompt, end='')
-            key = msvcrt.getch().decode()  # type: ignore
+            key = msvcrt.getch().decode()
             if print_key:
                 print(key, end='')
         result: Optional[_RV] = check(key)
