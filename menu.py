@@ -36,10 +36,11 @@ def menu(menu_text: str, options: List[MenuOption[MenuReturn]]) -> MenuReturn:
     options_text = '\n'.join(options_list)
     print(
         f"{clean_lines(menu_text)}\n",
-        f"\n"
+        "\n"
         "Options available:\n"
         "\n"
         f"{clean_lines(options_text)}"
+        "\n"
     )
     key: str = get_key("Please choose an option: ", lambda k: k in options_dict and k or None)
     return options_dict[key]()  # call the chosen option

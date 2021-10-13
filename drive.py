@@ -95,3 +95,7 @@ def run_chkdsk(drive: Drive, options: str = '') -> int:
 
 def run_sfc():
     subprocess.run("sfc /scannow")
+
+
+def run_dism():
+    subprocess.run("DISM /Online /Cleanup-Image /RestoreHealth")

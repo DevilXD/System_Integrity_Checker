@@ -8,7 +8,9 @@ from typing import List, Tuple
 
 from menu import menu
 from utils import ask_restart
-from drive import Drive, get_system_drive, get_logical_drives, run_chkdsk, schedule_check, run_sfc
+from drive import (
+    Drive, get_system_drive, get_logical_drives, run_chkdsk, run_dism, schedule_check, run_sfc
+)
 
 # Platform-dependent imports
 try:
@@ -17,13 +19,17 @@ except (ModuleNotFoundError, ImportError):
     pass
 
 
-# Increment by 1 for every new release
-__version__ = 5
-
-
 # Determine if we need to pause after messages or not
 # Useful only for command-line usage
 pause = not bool(len(sys.argv) > 1 and sys.argv[1].lower() == "--no-prompt")
+
+###############
+# MAINTENANCE #
+###############
+# Increment by 1 for every new release
+__version__ = 6
+# Minimal terminal height (in lines)
+MIN_HEIGHT = 19
 
 try:
     if sys.platform != "win32":
@@ -95,8 +101,13 @@ try:
         return (False, True)
 
     # Verifies system files
-    def sfc_check():
+    def sfc_check() -> errors_restart:
         run_sfc()
+        return (False, False)
+
+    # Verifies system image
+    def dism_check() -> errors_restart:
+        run_dism()
         return (False, False)
 
     def exit():
@@ -109,7 +120,9 @@ try:
     errors_fixed: bool
     restart_required: bool
     if pause:
-        width, height = shutil.get_terminal_size()
+        width, height = shutil.get_terminal_size((80, 900))
+        if height < MIN_HEIGHT:
+            os.system(f"mode CON lines={MIN_HEIGHT}")
         warning_text = " WARNING ".center(width - 2, "#")
         errors_fixed, restart_required = menu(
             (
@@ -120,8 +133,8 @@ try:
                 "\n"
                 f" {warning_text}\n"
                 "Locking the drive will temporarly disable access to it, "
-                "which may cause some opened programs to stop functioning. "
-                "To avoid problems, it's recommended to close any opened programs first.\n"
+                "which may cause some running programs to stop functioning. "
+                "To avoid problems, it's recommended to close any running programs first.\n"
                 f" {warning_text}"
             ),
             [
@@ -138,8 +151,12 @@ try:
                     disk_offline,
                 ),
                 (
-                    "Sfc check - verify system files integrity (use after disk checking)",
+                    "SFC check - verify system files integrity (use after disk checking)",
                     sfc_check,
+                ),
+                (
+                    "DISM check - repair system image (Windows 10+ only)",
+                    dism_check,
                 ),
                 ("Exit", exit),
             ],
@@ -151,7 +168,7 @@ try:
     msg = "\nSystem integrity verification completed!"
     if errors_fixed:
         msg += " Integrity has been restored."
-    print(f"{msg}\n")
+    print(msg)
     if restart_required:
         ask_restart()
     elif pause:
